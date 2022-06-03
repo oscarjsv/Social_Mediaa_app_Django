@@ -3,6 +3,8 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.http import HttpResponse
 
+from core.models import Profile
+
 
 def index(request):
     return render(request, 'index.html')
@@ -28,6 +30,19 @@ def signup(request):
                 user = User.objects.create_user(
                     username=username, email=email, password=password)
                 user.save()
+
+            # log user in and redirect to settings page
+
+
+            # create a profile object for the new user
+
+            user_model = User.objects.get(username=username)
+            new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
+            new_profile.save()
+            return redirect('core:signup')
+
+
+
         else:
             messages.info(request, 'Password Not Matching')
             return redirect('core:signup')
