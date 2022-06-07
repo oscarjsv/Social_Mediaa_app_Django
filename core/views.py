@@ -4,9 +4,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from core.models import Profile
 
+
 @login_required(login_url='core:signin')
 def index(request):
     return render(request, 'index.html')
+
+
+@login_required(login_url='core:signin')
+def settings(request):
+    return render(request, 'setting.html')
 
 
 def signup(request):
@@ -31,14 +37,15 @@ def signup(request):
                 user.save()
 
             # log user in and redirect to settings page
-
+            user_login = auth.authenticate(username=username, password=password)
+            auth.login(request, user_login)
             # create a profile object for the new user
 
             user_model = User.objects.get(username=username)
             new_profile = Profile.objects.create(
                 user=user_model, id_user=user_model.id)
             new_profile.save()
-            return redirect('core:signup')
+            return redirect('core:settings')
         else:
             messages.info(request, 'Password Not Matching')
             return redirect('core:signup')
@@ -62,6 +69,7 @@ def signin(request):
 
     else:
         return render(request, 'signin.html')
+
 
 @login_required(login_url='core:signin')
 def logout(request):
