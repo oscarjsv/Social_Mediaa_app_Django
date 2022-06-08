@@ -12,7 +12,33 @@ def index(request):
 
 @login_required(login_url='core:signin')
 def settings(request):
-    return render(request, 'setting.html')
+    user_profile = Profile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        
+        if request.FILES.get('image') == None:
+            image = user_profile.profileimg
+            bio = request.POST['bio']
+            location = request.POST['location']
+
+            user_profile.profileimg = image
+            user_profile.bio = bio
+            user_profile.location = location
+            user_profile.save()
+
+        if request.FILES.get('image') != None:
+            image = request.FILES.get('image')
+            bio = request.POST['bio']
+            location = request.POST['location']
+
+            user_profile.profileimg = image
+            user_profile.bio = bio
+            user_profile.location = location
+            user_profile.save()
+
+        return redirect('core:settings')
+
+    return render(request, 'setting.html', {'user_profile': user_profile})
 
 
 def signup(request):
@@ -37,7 +63,8 @@ def signup(request):
                 user.save()
 
             # log user in and redirect to settings page
-            user_login = auth.authenticate(username=username, password=password)
+            user_login = auth.authenticate(
+                username=username, password=password)
             auth.login(request, user_login)
             # create a profile object for the new user
 
