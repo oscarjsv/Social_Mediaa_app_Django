@@ -2,12 +2,31 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from core.models import Profile
+from django.http import HttpResponse
+from core.models import Post, Profile
 
 
 @login_required(login_url='core:signin')
 def index(request):
-    return render(request, 'index.html')
+    user_object = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(user=user_object)
+    return render(request, 'index.html', {'user_profile': user_profile})
+
+
+@login_required(login_url='core:signin')
+def upload(request):
+
+    if request.method == 'POST':
+        user = request.user.username
+        image = request.FILES.get('upload_to')
+        caption = request.POST['caption']
+
+        new_post = Post.objects.create(user=user, image=image, caption=caption)
+        new_post.save()
+        return redirect('/')
+
+    else:
+        return redirect('/')
 
 
 @login_required(login_url='core:signin')
@@ -15,7 +34,7 @@ def settings(request):
     user_profile = Profile.objects.get(user=request.user)
 
     if request.method == 'POST':
-        
+
         if request.FILES.get('image') == None:
             image = user_profile.profileimg
             bio = request.POST['bio']
