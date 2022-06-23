@@ -39,7 +39,8 @@ def like_post(request):
 
     post = Post.objects.get(id=post_id)
 
-    like_filter = LikePost.objects.filter(post_id=post_id, username=username).first()
+    like_filter = LikePost.objects.filter(
+        post_id=post_id, username=username).first()
     print(like_filter)
     if like_filter == None:
         new_like = LikePost.objects.create(post_id=post_id, username=username)
@@ -53,6 +54,26 @@ def like_post(request):
         post.no_of_likes = post.no_of_likes - 1
         post.save()
         return redirect('/')
+
+
+@login_required(login_url='core:signin')
+def profile(request, pk):
+
+    # Obtengo el usuario de la pk que se pasa en la funcion profile = Oscar1
+    user_object = User.objects.get(username=pk)
+    # Obtengo el perfil de usuario que fue obtenido en la linea anterior
+    user_profile = Profile.objects.get(user=user_object)
+    # Filtro por la pk los post
+    user_posts = Post.objects.filter(user=pk)
+    user_posts_length = len(user_posts)
+
+    context = {
+        'user_object': user_object,
+        'user_profile': user_profile,
+        'user_posts': user_posts,
+        'user_posts_length': user_posts_length
+    }
+    return render(request, 'profile.html', context)
 
 
 @login_required(login_url='core:signin')
