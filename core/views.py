@@ -1,3 +1,4 @@
+from itertools import chain
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
@@ -11,9 +12,23 @@ def index(request):
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
 
-    posts = Post.objects.all()
+    user_following_list = []
+    feed = []
 
-    return render(request, 'index.html', {'user_profile': user_profile, 'posts': posts})
+    user_following = FollowerCount.objects.filter(
+        follower=request.user.username)
+
+    for users in user_following:
+        user_following_list.append(users.user)
+    
+    for usernames in user_following_list:
+        feed_lists = Post.objects.filter(user=usernames)
+        feed.append(feed_lists)
+
+
+    feed_lists = list(chain(*feed))
+
+    return render(request, 'index.html', {'user_profile': user_profile, 'posts': feed_lists})
 
 
 @login_required(login_url='core:signin')
@@ -68,9 +83,8 @@ def profile(request, pk):
     user_posts_length = len(user_posts)
 
     follower = request.user.username
+    print(follower)
     user = pk
-
-    
 
     if FollowerCount.objects.filter(follower=follower, user=user).first():
         button_text = 'Unfollow'
@@ -79,8 +93,6 @@ def profile(request, pk):
 
     user_followers = len(FollowerCount.objects.filter(user=pk))
     user_following = len(FollowerCount.objects.filter(follower=pk))
-        
-        
 
     context = {
         'user_object': user_object,
@@ -88,8 +100,8 @@ def profile(request, pk):
         'user_posts': user_posts,
         'user_posts_length': user_posts_length,
         'button_text': button_text,
-        'user_followers':user_followers,
-        'user_following':user_following,
+        'user_followers': user_followers,
+        'user_following': user_following,
     }
     return render(request, 'profile.html', context)
 
@@ -99,7 +111,6 @@ def follow(request):
     if request.method == 'POST':
 
         follower = request.POST['follower']
-        print(follower)
         user = request.POST['user']
         print(user)
 

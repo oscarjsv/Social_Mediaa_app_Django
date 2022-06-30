@@ -233,7 +233,7 @@
                                         class="bg-gray-200 border border-white rounded-full w-8 h-8">
                                 </div>
                             </a>
-                            <span class="block capitalize font-semibold "> <a href="#">@{{post.user}}</a> </span>
+                            <span class="block capitalize font-semibold "> <a href="/profile/{{post.user}}">@{{post.user}}</a> </span>
                         </div>
                         <div>
                             <a href="#"> <i
@@ -320,7 +320,7 @@
                         </div> {% endcomment %}
 
                         <p>
-                            <a href="#"> <strong>{{post.user}}</strong> </a>{{post.caption}}
+                            <a href="/profile/{{post.user}}"> <strong>{{post.user}}</strong> </a>{{post.caption}}
                         </p>
 
                         {% comment %} <div class="border-t pt-4 space-y-4 ">
